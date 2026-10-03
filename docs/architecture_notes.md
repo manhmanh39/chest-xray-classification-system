@@ -63,24 +63,18 @@ Chest X-ray findings can appear at different spatial scales. Some patterns cover
 
 For an input with `C_in` channels, the block produces `C_out` channels. `C_out` must be divisible by four because the output channels are split equally across four branches.
 
-                              Input
-                                │
-      ┌─────────────────────────┼─────────────────────────┬─────────────────────────┐
-      │                         │                         │                         │
-      ▼                         ▼                         ▼                         ▼
-   Branch 1                  Branch 2                  Branch 3                  Branch 4
-     1x1                    1x1 -> 3x3              1x1 -> 3x3               3x3 MaxPool
-                                                        -> 3x3                  -> 1x1
-      │                         │                         │                         │
-      └───────────────┬─────────┴───────────────┬─────────┴───────────────┬─────────┘
-                      │                         │                         │
-                      └───────────────────── Concatenate ──────────────────┘
-                                              │
-                                              ▼
-                                   + Residual Shortcut
-                                              │
-                                              ▼
-                                             ReLU
+Input
+  │
+  ├── Branch 1: 1x1
+  ├── Branch 2: 1x1 -> 3x3
+  ├── Branch 3: 1x1 -> 3x3 -> 3x3
+  └── Branch 4: 3x3 MaxPool -> 1x1
+          ↓
+     Concatenate
+          ↓
+   Residual Shortcut
+          ↓
+         ReLU
 
 The four branches have different roles:
 
