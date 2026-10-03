@@ -1,5 +1,3 @@
-"""Transfer-learning model wrappers built from torchvision backbones."""
-
 from __future__ import annotations
 
 from typing import Literal, TypeAlias, cast
@@ -26,13 +24,6 @@ SUPPORTED_BACKBONES: tuple[str, ...] = (
 
 
 class TransferLearningModel(nn.Module):
-    """Torchvision backbone with a project-specific classification head.
-
-    The backbone can start frozen for feature extraction and later be unfrozen
-    by the training loop. The model returns raw logits for multi-label training
-    with ``BCEWithLogitsLoss``.
-    """
-
     def __init__(
         self,
         num_classes: int = 15,
@@ -71,7 +62,6 @@ class TransferLearningModel(nn.Module):
         pretrained: bool,
         dropout: float,
     ) -> nn.Module:
-        """Create a torchvision model and replace its classification head."""
         if backbone_name == "resnet18":
             weights = models.ResNet18_Weights.DEFAULT if pretrained else None
             backbone = models.resnet18(weights=weights)
@@ -121,25 +111,21 @@ class TransferLearningModel(nn.Module):
         return backbone
 
     def _classification_head(self) -> nn.Module:
-        """Return the trainable classification head for the selected backbone."""
         if hasattr(self.backbone, "fc"):
             return cast(nn.Module, self.backbone.fc)
         return cast(nn.Module, self.backbone.classifier)
 
     def freeze_backbone(self) -> None:
-        """Freeze feature-extractor parameters while keeping the head trainable."""
         for parameter in self.backbone.parameters():
             parameter.requires_grad = False
         for parameter in self._classification_head().parameters():
             parameter.requires_grad = True
 
     def unfreeze_backbone(self) -> None:
-        """Enable gradients for every backbone parameter."""
         for parameter in self.backbone.parameters():
             parameter.requires_grad = True
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return raw logits with shape ``[batch_size, num_classes]``."""
         return self.backbone(x)
 
 
@@ -150,7 +136,6 @@ def get_model3_transfer(
     freeze_base: bool = True,
     dropout: float = 0.3,
 ) -> TransferLearningModel:
-    """Construct the transfer-learning model used by the project."""
     return TransferLearningModel(
         num_classes=num_classes,
         backbone_name=backbone_name,
