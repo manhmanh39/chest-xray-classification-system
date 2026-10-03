@@ -1,11 +1,3 @@
-"""Complex CNN with sequential stages and parallel multi-path blocks.
-
-Each multi-path block processes the same feature map through four branches with
-increasing receptive-field depth, concatenates their outputs, and adds a
-residual shortcut. Stacking these blocks preserves the assignment requirement
-of combining sequential and parallel computation in one architecture.
-"""
-
 from __future__ import annotations
 
 import torch
@@ -13,7 +5,6 @@ from torch import nn
 
 
 class ConvBNReLU(nn.Module):
-    """Convenience layer: convolution followed by batch norm and ReLU."""
 
     def __init__(
         self,
@@ -42,12 +33,6 @@ class ConvBNReLU(nn.Module):
 
 
 class MultiPathParallelBlock(nn.Module):
-    """Four-branch feature extractor with a residual shortcut.
-
-    Branches use 1x1, 1x1->3x3, 1x1->3x3->3x3, and pool->1x1 paths.
-    Using different path depths lets the block combine local and wider-context
-    features before concatenation.
-    """
 
     def __init__(self, in_channels: int, out_channels: int) -> None:
         super().__init__()
@@ -93,7 +78,6 @@ class MultiPathParallelBlock(nn.Module):
 
 
 class ComplexCNN(nn.Module):
-    """CNN that combines sequential stages with parallel multi-path blocks."""
 
     def __init__(
         self,
@@ -142,7 +126,6 @@ class ComplexCNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return raw logits with shape ``[batch_size, num_classes]``."""
         x = self.stem(x)
         x = self.stage1(x)
         x = self.stage2(x)
@@ -156,7 +139,6 @@ def get_model2_complex(
     dropout: float = 0.4,
     in_channels: int = 3,
 ) -> ComplexCNN:
-    """Construct the project's sequential-plus-parallel CNN."""
     return ComplexCNN(
         in_channels=in_channels,
         num_classes=num_classes,
