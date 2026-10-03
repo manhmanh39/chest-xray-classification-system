@@ -1,5 +1,3 @@
-"""Public model API and model factory for the project."""
-
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -21,17 +19,6 @@ _MODEL_BUILDERS: dict[str, ModelBuilder] = {
 
 
 def get_model(model_name: str, num_classes: int = 15, **kwargs: Any) -> nn.Module:
-    """Build one of the three supported project models.
-
-    Parameters
-    ----------
-    model_name:
-        Canonical model name: ``simple``, ``complex`` or ``transfer``.
-    num_classes:
-        Number of output logits.
-    **kwargs:
-        Extra constructor arguments forwarded to the selected model builder.
-    """
     key = model_name.strip().lower()
     try:
         builder = _MODEL_BUILDERS[key]
