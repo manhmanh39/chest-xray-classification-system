@@ -1,5 +1,3 @@
-"""Smoke tests for the three model architectures and the public factory."""
-
 from __future__ import annotations
 
 import pytest
