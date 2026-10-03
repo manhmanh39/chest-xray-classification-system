@@ -1,10 +1,3 @@
-"""Simple convolutional network used as the project baseline.
-
-The model intentionally follows a strictly sequential design: each stage applies
-convolution, batch normalization, ReLU activation and spatial downsampling.
-Later stages add light spatial dropout to reduce overfitting.
-"""
-
 from __future__ import annotations
 
 from typing import List
@@ -18,11 +11,6 @@ def _feature_stage(
     out_channels: int,
     spatial_dropout: float = 0.0,
 ) -> List[nn.Module]:
-    """Build one Conv-BN-ReLU-(Dropout)-Pool stage.
-
-    The returned list is expanded into ``nn.Sequential`` so the parameter order
-    and state-dict keys remain compatible with the previous implementation.
-    """
     layers: List[nn.Module] = [
         nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),
         nn.BatchNorm2d(out_channels),
@@ -35,13 +23,6 @@ def _feature_stage(
 
 
 class SimpleCNN(nn.Module):
-    """Sequential CNN baseline for 15-label chest X-ray classification.
-
-    Channel width increases from 32 to 256 while max pooling progressively
-    reduces spatial resolution. Adaptive average pooling removes any dependency
-    on a fixed input image size before the final classifier.
-    """
-
     def __init__(
         self,
         in_channels: int = 3,
@@ -73,7 +54,6 @@ class SimpleCNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Return raw logits with shape ``[batch_size, num_classes]``."""
         x = self.features(x)
         x = self.global_pool(x)
         return self.classifier(x)
@@ -84,7 +64,6 @@ def get_model1_simple(
     dropout: float = 0.4,
     in_channels: int = 3,
 ) -> SimpleCNN:
-    """Construct the project's sequential CNN baseline."""
     return SimpleCNN(
         in_channels=in_channels,
         num_classes=num_classes,
