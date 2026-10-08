@@ -1,0 +1,7 @@
+{
+  "learning_rate": 0.00044203221000809097,
+  "batch_size": 16,
+  "weight_decay": 0.00033974863429266447,
+  "dropout": 0.2846651087799922,
+  "optimizer": "adamw"
+}

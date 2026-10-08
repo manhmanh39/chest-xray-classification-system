@@ -1,0 +1,27 @@
+{
+  "auc": 0.9056660606940593,
+  "f1_macro": 0.3943900328936697,
+  "f1_micro": 0.5561561561561561,
+  "sensitivity": 0.8900422914263745,
+  "specificity": 0.8312292687756819,
+  "label_accuracy": 0.837938596491228,
+  "subset_accuracy": 0.6328947368421053,
+  "threshold": 0.5,
+  "per_class_auc": {
+    "Aortic enlargement": 0.9520208597952151,
+    "Atelectasis": 0.9255934640064519,
+    "Calcification": 0.8924896421845575,
+    "Cardiomegaly": 0.9596022918773172,
+    "Consolidation": 0.8972559149445942,
+    "ILD": 0.8910299693554251,
+    "Infiltration": 0.8857250320810656,
+    "Lung Opacity": 0.8980492970046285,
+    "Nodule/Mass": 0.8591862229712167,
+    "Other lesion": 0.8670859224875845,
+    "Pleural effusion": 0.919932031983337,
+    "Pleural thickening": 0.9117689756872812,
+    "Pneumothorax": 0.8680132450331126,
+    "Pulmonary fibrosis": 0.8883797887234314,
+    "No finding": 0.9688582522756719
+  }
+}

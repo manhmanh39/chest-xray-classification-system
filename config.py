@@ -1,6 +1,5 @@
-import os
 from pathlib import Path
-
+import os
 import torch
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -10,11 +9,23 @@ CHECKPOINT_DIR = BASE_DIR / "checkpoints"
 OUTPUT_DIR = BASE_DIR / "outputs"
 
 CLASS_NAMES = [
-    "Aortic enlargement", "Atelectasis", "Calcification", "Cardiomegaly",
-    "Consolidation", "ILD", "Infiltration", "Lung Opacity", "Nodule/Mass",
-    "Other lesion", "Pleural effusion", "Pleural thickening",
-    "Pneumothorax", "Pulmonary fibrosis", "No finding",
+    "Aortic enlargement",
+    "Atelectasis",
+    "Calcification",
+    "Cardiomegaly",
+    "Consolidation",
+    "ILD",
+    "Infiltration",
+    "Lung Opacity",
+    "Nodule/Mass",
+    "Other lesion",
+    "Pleural effusion",
+    "Pleural thickening",
+    "Pneumothorax",
+    "Pulmonary fibrosis",
+    "No finding",
 ]
+
 NUM_CLASSES = len(CLASS_NAMES)
 NO_FINDING_CLASS_ID = CLASS_NAMES.index("No finding")
 

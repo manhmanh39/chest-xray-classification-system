@@ -1,0 +1,119 @@
+{
+  "metrics": {
+    "loss": 0.6548807708840622,
+    "auc": 0.8929792990778653,
+    "f1_macro": 0.36987246263143514,
+    "f1_micro": 0.5165970542976478,
+    "sensitivity": 0.8238515148699784,
+    "specificity": 0.7986634225772998,
+    "label_accuracy": 0.8071052631578948,
+    "subset_accuracy": 0.6256578947368421
+  },
+  "per_class": [
+    {
+      "class": "Aortic enlargement",
+      "support": 307,
+      "auc": 0.9447569892935114,
+      "sensitivity": 0.9315960912052117,
+      "specificity": 0.8549051937345424
+    },
+    {
+      "class": "Atelectasis",
+      "support": 19,
+      "auc": 0.8895823836740419,
+      "sensitivity": 0.631578947368421,
+      "specificity": 0.8967355096602265
+    },
+    {
+      "class": "Calcification",
+      "support": 45,
+      "auc": 0.8806629001883239,
+      "sensitivity": 0.9777777777777777,
+      "specificity": 0.7138983050847457
+    },
+    {
+      "class": "Cardiomegaly",
+      "support": 230,
+      "auc": 0.9529558476575666,
+      "sensitivity": 0.9391304347826087,
+      "specificity": 0.8271317829457364
+    },
+    {
+      "class": "Consolidation",
+      "support": 36,
+      "auc": 0.8852575621443546,
+      "sensitivity": 0.8611111111111112,
+      "specificity": 0.7863881401617251
+    },
+    {
+      "class": "ILD",
+      "support": 39,
+      "auc": 0.8919995152270641,
+      "sensitivity": 0.7948717948717948,
+      "specificity": 0.8190411883862255
+    },
+    {
+      "class": "Infiltration",
+      "support": 62,
+      "auc": 0.8712774901544317,
+      "sensitivity": 0.8387096774193549,
+      "specificity": 0.747599451303155
+    },
+    {
+      "class": "Lung Opacity",
+      "support": 132,
+      "auc": 0.8777235612610252,
+      "sensitivity": 0.8409090909090909,
+      "specificity": 0.7600864553314121
+    },
+    {
+      "class": "Nodule/Mass",
+      "support": 83,
+      "auc": 0.8472134886099723,
+      "sensitivity": 0.8192771084337349,
+      "specificity": 0.720946416144746
+    },
+    {
+      "class": "Other lesion",
+      "support": 114,
+      "auc": 0.8645716353472586,
+      "sensitivity": 0.8771929824561403,
+      "specificity": 0.7403982930298719
+    },
+    {
+      "class": "Pleural effusion",
+      "support": 103,
+      "auc": 0.9174928571917973,
+      "sensitivity": 0.9320388349514563,
+      "specificity": 0.7614678899082569
+    },
+    {
+      "class": "Pleural thickening",
+      "support": 198,
+      "auc": 0.9076277143599383,
+      "sensitivity": 0.9090909090909091,
+      "specificity": 0.7851739788199698
+    },
+    {
+      "class": "Pneumothorax",
+      "support": 10,
+      "auc": 0.8150993377483444,
+      "sensitivity": 0.2,
+      "specificity": 0.9231788079470199
+    },
+    {
+      "class": "Pulmonary fibrosis",
+      "support": 162,
+      "auc": 0.8828933253331878,
+      "sensitivity": 0.8827160493827161,
+      "specificity": 0.7584683357879234
+    },
+    {
+      "class": "No finding",
+      "support": 1061,
+      "auc": 0.9655748779771622,
+      "sensitivity": 0.9217719132893497,
+      "specificity": 0.8845315904139434
+    }
+  ]
+}

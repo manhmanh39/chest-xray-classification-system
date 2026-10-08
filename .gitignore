@@ -30,5 +30,4 @@ Thumbs.db
 *.h5
 *.pkl
 
-# Local handoff guide
-ANH_RUN_GUIDE.md
+datasets/
