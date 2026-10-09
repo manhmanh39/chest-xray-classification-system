@@ -14,11 +14,7 @@ def main():
     processed_dir = DATASET_DIR / "processed"
 
     # Skip downloading if the dataset is already prepared
-    if (
-        (processed_dir / "train").is_dir()
-        and (processed_dir / "val").is_dir()
-        and (processed_dir / "test").is_dir()
-    ):
+    if ((processed_dir / "train").is_dir() and (processed_dir / "val").is_dir() and (processed_dir / "test").is_dir()):
         print("Dataset already exists. Skipping download.")
         return
 
@@ -26,16 +22,10 @@ def main():
 
     print("Downloading dataset...")
 
-    result = gdown.download(
-        url=DATASET_URL,
-        output=str(ZIP_PATH),
-        quiet=False,
-    )
+    result = gdown.download( url=DATASET_URL, output=str(ZIP_PATH), quiet=False,)
 
     if result is None:
-        raise RuntimeError(
-            "Download failed. Check the Google Drive link and permissions."
-        )
+        raise RuntimeError( "Download failed. Check the Google Drive link and permissions.")
 
     print("Extracting dataset...")
 
