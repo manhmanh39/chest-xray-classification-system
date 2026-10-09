@@ -1,82 +1,144 @@
-# Chest X-Ray Multi-Label Classification
+# Chest X-Ray Classification System
 
-Multi-label classification of 15 thoracic findings (14 diseases plus "No finding") on VinBigData chest X-rays, with three models compared on one fixed split.
+This project is developed by Group 10 for the Deep Learning course. It focuses on multi-label classification of chest X-ray images using the VinBigData Chest X-ray dataset.
 
-## Layout
+The project implements and compares three models: Simple CNN, Complex CNN, and Transfer Learning.
 
-```text
-models/        SimpleCNN, ComplexCNN, TransferLearningModel and get_model()
-data/          prepare_dataset.py (DICOM -> PNG + stratified split), dataset.py (loaders)
-training/      settings.py (config + tuned hparams), engine.py, train.py
-evaluation/    metrics.py, evaluate.py
-scripts/       hyperparameter_search.py, run_multi_seed.py
-utils/         seed.py
-tests/         test_models.py, test_data.py, test_training_eval.py
-docs/          architecture_notes.md
-main.py        train + evaluate all models and print a summary table
+## Group Members
+
+* Nguyễn Thị Mai Anh
+* Phạm Thị Ngọc Ánh
+* Phạm Khánh Dương
+* Nguyễn Khánh Huyền
+
+## Installation
+
+### 1. Clone the repository
+
+First, download the project from GitHub:
+
+```bash
+git clone https://github.com/manhmanh39/chest-xray-classification-system.git
+cd chest-xray-classification-system
 ```
 
-## Setup
+### 2. Install dependencies
+
+Install the required Python packages:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Data
+If you are using a virtual environment, activate it before installing the dependencies.
 
-Download the VinBigData competition files and place `train.csv` in `datasets/raw/`. Then build the split:
+## Dataset
+
+This project uses the VinBigData Chest X-ray dataset for multi-label classification of 14 thoracic diseases and the "No Finding" class.
+
+You can download the prepared dataset automatically using the provided script.
+
+### 1. Download the dataset
+
+Run the following command from the project root directory:
 
 ```bash
-python -m data.prepare_dataset --zip_path <path-to-vinbigdata.zip>
+python download_dataset.py
 ```
 
-- A label is positive when any radiologist boxed that finding. An image with no disease box is "No finding".
-- The split is multilabel-stratified (`iterative-stratification`), 80/10/10, so rare findings appear in every split. It is fixed by `--seed` (default 202601).
-- Images are saved as grayscale PNG (224 px, percentile-normalised, MONOCHROME1 inverted). Stale PNGs from an earlier split are deleted, so splits never leak.
-- `datasets/processed/split_summary.csv` lists the positive count per class and split. Use it in the report.
+The script downloads the dataset ZIP file from [Google Drive](https://drive.google.com/file/d/1qpvIWLy3OzO_c5RaapVtt9xsDf9PEF0b/view?usp=sharing) and extracts the files into the `datasets/` directory.
 
-If the processed split is missing, training stops with a message telling you to run the command above.
+The expected directory structure is:
+
+```text
+datasets/
+├── raw/
+│   └── train.csv
+└── processed/
+    ├── train/
+    ├── val/
+    ├── test/
+    ├── train.csv
+    ├── val.csv
+    ├── test.csv
+    └── split_summary.csv
+```
+
+Make sure the dataset has been downloaded and extracted successfully before training.
+
+### 2. Prepare the dataset manually
+
+Alternatively, you can download the original dataset from [Kaggle](https://www.kaggle.com/competitions/vinbigdata-chest-xray-abnormalities-detection/data).
+
+Place the original `train.csv` file in `datasets/raw/`, then run:
+
+```bash
+python generate_data.py --zip_path path/to/train.zip
+```
+
+Replace `path/to/train.zip` with the actual path to the original dataset ZIP file. The script processes the DICOM images and creates the training, validation, and test sets.
+
+**Note:** If you use the prepared dataset from Google Drive, you do not need to run the preprocessing script again.
+
+## Models
+
+The project includes three models:
+
+* **Simple CNN:** A basic convolutional neural network with convolutional and pooling layers.
+* **Complex CNN:** A CNN with parallel branches for feature extraction.
+* **Transfer Learning:** A model that uses a pretrained network as its backbone.
 
 ## Training
 
-```bash
-python -m training.train --model simple
-python -m training.train --model transfer --backbone resnet50
-```
-
-Learning rate, batch size, weight decay, optimizer and dropout are read from `outputs/best_hparams_<model>.json` when it exists. Every entry point (`training.train`, `main.py`, `run_multi_seed`) goes through `resolve_train_config`, so they all use the same values. Pass `--no_tuned` to ignore the file; explicit CLI flags always win. The best checkpoint is chosen by validation macro AUC.
+After downloading the dataset, you can train a model using:
 
 ```bash
-python -m scripts.hyperparameter_search --model simple --n_trials 30
-python -m scripts.run_multi_seed --model transfer --n_runs 5
+python main.py --model simple
 ```
+
+Replace `simple` with another supported model name to train a different model.
+
+Training settings, including the learning rate, batch size, number of epochs, and model configuration, can be adjusted using the available configuration options.
 
 ## Evaluation
 
-```bash
-python -m evaluation.evaluate --checkpoint checkpoints/transfer_seed202601_best.pth
-python main.py --model all
+The models are evaluated using classification metrics, including:
+
+* AUC (Area Under the ROC Curve)
+* F1-score
+* Sensitivity
+* Specificity
+* Accuracy
+
+These metrics are used to compare the performance of the models on the chest X-ray classification task.
+
+## Project Structure
+
+```text
+chest-xray-classification-system/
+├── models/
+├── data/
+├── training/
+├── evaluation/
+├── scripts/
+├── utils/
+├── tests/
+├── docs/
+├── datasets/
+│   ├── raw/
+│   └── processed/
+├── checkpoints/
+├── download_dataset.py
+├── generate_data.py
+├── main.py
+├── requirements.txt
+└── README.md
 ```
 
-Reported on the test split: macro AUC, macro/micro F1, mean sensitivity and specificity, per-label accuracy and subset (exact-match) accuracy. Per-class results are saved to `outputs/eval_<model>.json` and `outputs/per_class_auc_<model>.png`.
+The project contains the model implementations, data processing utilities, training and evaluation scripts, tests, and documentation.
 
-Checkpoints are selected on validation only. Report mean and std (and median) over several seeds on the fixed split rather than the best single run.
+## Notes
 
-## Tests
-
-```bash
-python -m pytest -q
-```
-
-## Contributions
-
-| Member | Area |
-|---|---|
-| Ánh | Model architectures, factory, model tests, architecture notes |
-| Mai Anh | Data preparation, loaders, config, seeding, dependencies, data tests |
-| Khánh Dương | Training, evaluation, tuning, multi-seed runner, main pipeline, README |
-
-## References
-
-- VinBigData Chest X-ray Abnormalities Detection (Kaggle).
-- Pretrained backbones from `torchvision.models`.
+* Download the repository before running the dataset download script.
+* Make sure the dataset is available in the expected directory before training.
+* The dataset ZIP file does not need to be downloaded manually if `download_dataset.py` is configured correctly.
