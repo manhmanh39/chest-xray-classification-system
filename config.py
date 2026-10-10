@@ -1,49 +1,35 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 import torch
 
-BASE_DIR = Path(__file__).resolve().parent
-RAW_DATA_DIR = BASE_DIR / "datasets" / "raw"
-PROCESSED_DATA_DIR = BASE_DIR / "datasets" / "processed"
-CHECKPOINT_DIR = BASE_DIR / "checkpoints"
-OUTPUT_DIR = BASE_DIR / "outputs"
+base_dir = Path(__file__).resolve().parent
+raw_data_dir = base_dir / "datasets" / "raw"
+processed_data_dir = base_dir / "datasets" / "processed"
+checkpoint_dir = base_dir / "checkpoints"
+output_dir = base_dir / "outputs"
 
-CLASS_NAMES = [
-    "Aortic enlargement",
-    "Atelectasis",
-    "Calcification",
-    "Cardiomegaly",
-    "Consolidation",
-    "ILD",
-    "Infiltration",
-    "Lung Opacity",
-    "Nodule/Mass",
-    "Other lesion",
-    "Pleural effusion",
-    "Pleural thickening",
-    "Pneumothorax",
-    "Pulmonary fibrosis",
-    "No finding",
+class_names = [
+    "Aortic enlargement", "Atelectasis", "Calcification", "Cardiomegaly",
+    "Consolidation", "ILD", "Infiltration", "Lung Opacity", "Nodule/Mass",
+    "Other lesion", "Pleural effusion", "Pleural thickening", "Pneumothorax",
+    "Pulmonary fibrosis", "No finding",
 ]
 
-NUM_CLASSES = len(CLASS_NAMES)
-NO_FINDING_CLASS_ID = CLASS_NAMES.index("No finding")
-
-IMAGE_SIZE = 224
-BATCH_SIZE = 16
-NUM_WORKERS = min(20, os.cpu_count() or 1)
-EPOCHS = 15
-LEARNING_RATE = 1e-3
-WEIGHT_DECAY = 1e-4
-THRESHOLD = 0.5
-MAX_POS_WEIGHT = 30.0
-
-FREEZE_EPOCHS = 3
-UNFREEZE_LR = 1e-5
-
-SEED = 202601
-SPLIT_SEED = 2026
-VAL_RATIO = 0.1
-TEST_RATIO = 0.1
-
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+num_classes = len(class_names)
+no_finding_class_id = class_names.index("No finding")
+image_size = 224
+batch_size = 16
+num_workers = min(20, os.cpu_count() or 1)
+epochs = 30
+learning_rate = 1e-3
+weight_decay = 1e-4
+threshold = 0.5
+max_pos_weight = 30.0
+freeze_epochs = 3
+unfreeze_lr = 1e-5
+seed = 202601
+split_seed = 2026
+val_ratio = 0.1
+test_ratio = 0.1
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

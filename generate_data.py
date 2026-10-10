@@ -18,15 +18,15 @@ import config
 def build_label_table(csv_path):
     annotations = pd.read_csv(csv_path)
     labels = pd.crosstab(annotations["image_id"], annotations["class_id"]).clip(upper=1)
-    labels = labels.reindex(columns=range(config.NUM_CLASSES), fill_value=0)
-    has_finding = labels.iloc[:, : config.NO_FINDING_CLASS_ID].sum(axis=1) > 0
-    labels[config.NO_FINDING_CLASS_ID] = (~has_finding).astype(int)
-    labels.columns = config.CLASS_NAMES
+    labels = labels.reindex(columns=range(config.num_classes), fill_value=0)
+    has_finding = labels.iloc[:, : config.no_finding_class_id].sum(axis=1) > 0
+    labels[config.no_finding_class_id] = (~has_finding).astype(int)
+    labels.columns = config.class_names
     return labels.reset_index()
 
 
 def stratified_split(labels, val_ratio, test_ratio, seed):
-    targets = labels[config.CLASS_NAMES].to_numpy()
+    targets = labels[config.class_names].to_numpy()
     indices = np.arange(len(labels))
     holdout = val_ratio + test_ratio
 
@@ -62,7 +62,11 @@ def dicom_to_png(task):
             low, high = pixels.min(), pixels.max()
         pixels = np.clip((pixels - low) / max(high - low, 1e-6), 0, 1)
 
-        image = cv2.resize((pixels * 255).astype(np.uint8), (image_size, image_size), interpolation=cv2.INTER_AREA)
+        image = cv2.resize(
+            (pixels * 255).astype(np.uint8),
+            (image_size, image_size),
+            interpolation=cv2.INTER_AREA,
+        )
         cv2.imwrite(str(output_path), image)
         return image_id, True
     except Exception as error:
@@ -85,7 +89,9 @@ def prepare_dataset(zip_path, csv_path, output_dir, image_size, val_ratio, test_
     labels = build_label_table(csv_path)
     with zipfile.ZipFile(zip_path) as archive:
         available = {
-            Path(name).stem for name in archive.namelist() if name.startswith("train/") and name.endswith(".dicom")
+            Path(name).stem
+            for name in archive.namelist()
+            if name.startswith("train/") and name.endswith(".dicom")
         }
     labels = labels[labels["image_id"].isin(available)].reset_index(drop=True)
     print(f"Found {len(labels)} labeled DICOM images.")
@@ -113,19 +119,26 @@ def prepare_dataset(zip_path, csv_path, output_dir, image_size, val_ratio, test_
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--zip_path", required=True)
-    parser.add_argument("--csv_path", default=str(config.RAW_DATA_DIR / "train.csv"))
-    parser.add_argument("--output_dir", default=str(config.PROCESSED_DATA_DIR))
-    parser.add_argument("--image_size", type=int, default=config.IMAGE_SIZE)
-    parser.add_argument("--val_ratio", type=float, default=config.VAL_RATIO)
-    parser.add_argument("--test_ratio", type=float, default=config.TEST_RATIO)
-    parser.add_argument("--seed", type=int, default=config.SPLIT_SEED)
-    parser.add_argument("--num_workers", type=int, default=config.NUM_WORKERS)
+    parser.add_argument("--csv_path", default=str(config.raw_data_dir / "train.csv"))
+    parser.add_argument("--output_dir", default=str(config.processed_data_dir))
+    parser.add_argument("--image_size", type=int, default=config.image_size)
+    parser.add_argument("--val_ratio", type=float, default=config.val_ratio)
+    parser.add_argument("--test_ratio", type=float, default=config.test_ratio)
+    parser.add_argument("--seed", type=int, default=config.split_seed)
+    parser.add_argument("--num_workers", type=int, default=config.num_workers)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 
     prepare_dataset(
-        args.zip_path, args.csv_path, args.output_dir, args.image_size,
-        args.val_ratio, args.test_ratio, args.seed, args.num_workers, args.overwrite,
+        args.zip_path,
+        args.csv_path,
+        args.output_dir,
+        args.image_size,
+        args.val_ratio,
+        args.test_ratio,
+        args.seed,
+        args.num_workers,
+        args.overwrite,
     )
 
 

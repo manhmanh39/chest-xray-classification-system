@@ -6,7 +6,14 @@ class ConvBNReLU(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1):
         super().__init__()
         self.block = nn.Sequential(
-            nn.Conv2d(in_channels, out_channels, kernel_size, stride, kernel_size // 2, bias=False),
+            nn.Conv2d(
+                in_channels,
+                out_channels,
+                kernel_size,
+                stride,
+                kernel_size // 2,
+                bias=False,
+            ),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
         )
@@ -15,9 +22,22 @@ class ConvBNReLU(nn.Module):
         return self.block(x)
 
 
-class MultiPathParallelBlock(nn.Module):
-    """4 parallel branches -> concat -> 1x1 fusion -> residual add."""
+class SqueezeExcitation(nn.Module):
+    def __init__(self, channels, reduction=8):
+        super().__init__()
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        self.gate = nn.Sequential(
+            nn.Conv2d(channels, channels // reduction, 1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(channels // reduction, channels, 1),
+            nn.Sigmoid(),
+        )
 
+    def forward(self, x):
+        return x * self.gate(self.pool(x))
+
+
+class MultiPathParallelBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
         if out_channels % 4 != 0:
@@ -42,6 +62,7 @@ class MultiPathParallelBlock(nn.Module):
             nn.Conv2d(out_channels, out_channels, 1, bias=False),
             nn.BatchNorm2d(out_channels),
         )
+        self.attention = SqueezeExcitation(out_channels)
 
         if in_channels == out_channels:
             self.shortcut = nn.Identity()
@@ -54,7 +75,7 @@ class MultiPathParallelBlock(nn.Module):
 
     def forward(self, x):
         branches = [self.branch1(x), self.branch2(x), self.branch3(x), self.branch4(x)]
-        merged = self.fusion(torch.cat(branches, dim=1))
+        merged = self.attention(self.fusion(torch.cat(branches, dim=1)))
         return self.relu(merged + self.shortcut(x))
 
 
@@ -76,14 +97,15 @@ class ComplexCNN(nn.Module):
             nn.MaxPool2d(2),
         )
         self.stage3 = nn.Sequential(
-            nn.MaxPool2d(2),
             MultiPathParallelBlock(256, 512),
             MultiPathParallelBlock(512, 512),
+            nn.MaxPool2d(2),
         )
-        self.pool = nn.AdaptiveAvgPool2d(1)
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.max_pool = nn.AdaptiveMaxPool2d(1)
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(512, 256),
+            nn.Linear(1024, 256),
             nn.BatchNorm1d(256),
             nn.ReLU(inplace=True),
             nn.Dropout(dropout),
@@ -95,5 +117,5 @@ class ComplexCNN(nn.Module):
         x = self.stage1(x)
         x = self.stage2(x)
         x = self.stage3(x)
-        x = self.pool(x)
+        x = torch.cat((self.avg_pool(x), self.max_pool(x)), dim=1)
         return self.classifier(x)

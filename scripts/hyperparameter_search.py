@@ -1,12 +1,18 @@
 import argparse
 import json
+import sys
+from pathlib import Path
 
 import optuna
 import torch
 from torch.utils.data import DataLoader, Subset
 
+root = Path(__file__).resolve().parents[1]
+if str(root) not in sys.path:
+    sys.path.insert(0, str(root))
+
 import config
-from dataset import get_dataloaders
+from preprocessing import get_dataloaders
 from train import fit, set_seed
 
 
@@ -20,7 +26,7 @@ def objective(trial, model_name, epochs, sample_ratio):
         "optimizer": trial.suggest_categorical("optimizer", ["adamw", "sgd"]),
     }
 
-    set_seed(config.SEED)
+    set_seed(config.seed)
     loaders, pos_weight = get_dataloaders(batch_size=params["batch_size"])
     dataset = loaders["train"].dataset
     indices = torch.randperm(len(dataset))[: int(len(dataset) * sample_ratio)].tolist()
@@ -28,9 +34,9 @@ def objective(trial, model_name, epochs, sample_ratio):
         Subset(dataset, indices),
         batch_size=params["batch_size"],
         shuffle=True,
-        num_workers=config.NUM_WORKERS,
+        num_workers=config.num_workers,
         pin_memory=torch.cuda.is_available(),
-        persistent_workers=config.NUM_WORKERS > 0,
+        persistent_workers=config.num_workers > 0,
         drop_last=True,
     )
 
@@ -46,15 +52,19 @@ def main():
     parser.add_argument("--sample_ratio", type=float, default=0.3)
     args = parser.parse_args()
 
-    sampler = optuna.samplers.TPESampler(seed=config.SEED)
-    study = optuna.create_study(direction="maximize", pruner=optuna.pruners.MedianPruner(), sampler=sampler)
+    sampler = optuna.samplers.TPESampler(seed=config.seed)
+    study = optuna.create_study(
+        direction="maximize",
+        pruner=optuna.pruners.MedianPruner(),
+        sampler=sampler,
+    )
     study.optimize(
         lambda trial: objective(trial, args.model, args.epochs, args.sample_ratio),
         n_trials=args.trials,
     )
 
-    config.OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    path = config.OUTPUT_DIR / f"best_params_{args.model}.json"
+    config.output_dir.mkdir(parents=True, exist_ok=True)
+    path = config.output_dir / f"best_params_{args.model}.json"
     with open(path, "w", encoding="utf-8") as file:
         json.dump(study.best_params, file, indent=2)
     print(f"Best validation AUC: {study.best_value:.4f}")

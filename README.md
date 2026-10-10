@@ -15,8 +15,6 @@ The project implements and compares three models: Simple CNN, Complex CNN, and T
 
 ### 1. Clone the repository
 
-First, download the project from GitHub:
-
 ```bash
 git clone https://github.com/manhmanh39/chest-xray-classification-system.git
 cd chest-xray-classification-system
@@ -30,15 +28,13 @@ Install the required Python packages:
 pip install -r requirements.txt
 ```
 
-If you are using a virtual environment, activate it before installing the dependencies.
+If you use a virtual environment, activate it before installing the dependencies.
 
 ## Dataset
 
-This project uses the VinBigData Chest X-ray dataset for multi-label classification of 14 thoracic diseases and the "No Finding" class.
+This project uses the VinBigData Chest X-ray dataset for multi-label classification of 14 thoracic diseases and the `No finding` class.
 
-You can download the prepared dataset automatically using the provided script.
-
-### 1. Download the dataset
+### 1. Download the prepared dataset
 
 Run the following command from the project root directory:
 
@@ -46,7 +42,7 @@ Run the following command from the project root directory:
 python download_dataset.py
 ```
 
-The script downloads the dataset ZIP file from [Google Drive](https://drive.google.com/file/d/1qpvIWLy3OzO_c5RaapVtt9xsDf9PEF0b/view?usp=sharing) and extracts the files into the `datasets/` directory.
+The script downloads the prepared dataset from [Google Drive](https://drive.google.com/file/d/1qpvIWLy3OzO_c5RaapVtt9xsDf9PEF0b/view?usp=sharing) and extracts it into the `datasets/` directory.
 
 The expected directory structure is:
 
@@ -68,17 +64,17 @@ Make sure the dataset has been downloaded and extracted successfully before trai
 
 ### 2. Prepare the dataset manually
 
-Alternatively, you can download the original dataset from [Kaggle](https://www.kaggle.com/competitions/vinbigdata-chest-xray-abnormalities-detection/data).
+Alternatively, download the original dataset from [Kaggle](https://www.kaggle.com/competitions/vinbigdata-chest-xray-abnormalities-detection/data).
 
-Place the original `train.csv` file in `datasets/raw/`, then run:
+Place the original dataset files in the appropriate directories under `datasets/`. If you have the original training ZIP file, run:
 
 ```bash
 python generate_data.py --zip_path path/to/train.zip
 ```
 
-Replace `path/to/train.zip` with the actual path to the original dataset ZIP file. The script processes the DICOM images and creates the training, validation, and test sets.
+Replace `path/to/train.zip` with the actual path to the ZIP file. The script generates the processed dataset and splits the data into training, validation, and test sets.
 
-**Note:** If you use the prepared dataset from Google Drive, you do not need to run the preprocessing script again.
+If you use the prepared dataset from Google Drive, you do not need to generate the dataset again unless you want to recreate the splits or preprocessing outputs.
 
 ## Models
 
@@ -86,59 +82,93 @@ The project includes three models:
 
 * **Simple CNN:** A basic convolutional neural network with convolutional and pooling layers.
 * **Complex CNN:** A CNN with parallel branches for feature extraction.
-* **Transfer Learning:** A model that uses a pretrained network as its backbone.
+* **Transfer Learning:** A model that fine-tunes a pretrained DenseNet121 backbone.
 
 ## Training
 
-After downloading the dataset, you can train a model using:
+Run the following command from the project root directory to train a model:
 
 ```bash
-python main.py --model simple
+python train.py --model simple
 ```
 
-Replace `simple` with another supported model name to train a different model.
+The supported model options are:
 
-Training settings, including the learning rate, batch size, number of epochs, and model configuration, can be adjusted using the available configuration options.
+* `simple`
+* `complex`
+* `transfer`
+
+For example, to train the Complex CNN:
+
+```bash
+python train.py --model complex
+```
+
+To train the Transfer Learning model:
+
+```bash
+python train.py --model transfer
+```
+
+You can customize training settings using command-line arguments. For example:
+
+```bash
+python train.py --model complex --epochs 30 --batch_size 16 --lr 0.0005
+```
+
+Run the following command to see the available arguments:
+
+```bash
+python train.py --help
+```
 
 ## Evaluation
 
-The models are evaluated using classification metrics, including:
+Evaluate a trained model using the evaluation script:
 
-* AUC (Area Under the ROC Curve)
-* F1-score
-* Sensitivity
-* Specificity
-* Accuracy
+```bash
+python evaluate.py --checkpoint checkpoints/complex_best.pth
+```
 
-These metrics are used to compare the performance of the models on the chest X-ray classification task.
+Replace the checkpoint path with the checkpoint you want to evaluate.
+
+The project uses the following evaluation metrics:
+
+* **AUC:** Area Under the ROC Curve
+* **F1-score:** Macro and micro F1-score
+* **Sensitivity:** Proportion of positive cases correctly identified
+* **Specificity:** Proportion of negative cases correctly identified
+* **Label accuracy:** Accuracy calculated across individual labels
+* **Subset accuracy:** Proportion of samples for which all labels are predicted correctly
+
+The default classification threshold is `0.5`.
 
 ## Project Structure
 
 ```text
 chest-xray-classification-system/
-├── models/
-├── data/
-├── training/
-├── evaluation/
-├── scripts/
-├── utils/
-├── tests/
-├── docs/
+├── checkpoints/              # Saved model checkpoints
 ├── datasets/
-│   ├── raw/
-│   └── processed/
-├── checkpoints/
-├── download_dataset.py
-├── generate_data.py
-├── main.py
-├── requirements.txt
+│   ├── raw/                   # Original dataset files
+│   └── processed/             # Processed images and dataset splits
+├── models/                    # Model architectures
+├── outputs/                   # Evaluation results and experiment outputs
+├── scripts/                   # Helper and experiment scripts
+├── .gitignore
+├── config.py                  # Project configuration
+├── download_dataset.py        # Downloads the prepared dataset
+├── evaluate.py                # Evaluates trained models
+├── generate_data.py           # Generates and splits the dataset
+├── preprocessing.py           # Data preprocessing utilities
+├── requirements.txt           # Python dependencies
+├── train.py                   # Model training entry point
 └── README.md
 ```
 
-The project contains the model implementations, data processing utilities, training and evaluation scripts, tests, and documentation.
-
 ## Notes
 
-* Download the repository before running the dataset download script.
-* Make sure the dataset is available in the expected directory before training.
-* The dataset ZIP file does not need to be downloaded manually if `download_dataset.py` is configured correctly.
+* Run commands from the project root directory.
+* Ensure the dataset is available in the expected directories before training or evaluation.
+* Check `config.py` for the default dataset paths, class names, and training configuration.
+* The `checkpoints/` and `outputs/` directories store model checkpoints and experiment results.
+* The actual dataset files and trained checkpoints may not be included in the Git repository.
