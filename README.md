@@ -127,10 +127,29 @@ python train.py --help
 Evaluate a trained model using the evaluation script:
 
 ```bash
-python evaluate.py --checkpoint checkpoints/complex_best.pth
+python evaluate.py --checkpoint checkpoints/complex_seed202601.pth
 ```
 
 Replace the checkpoint path with the checkpoint you want to evaluate.
+
+To add per-disease AUC, sensitivity, and specificity mean and standard deviation
+to the existing three-seed results without retraining, run:
+
+```bash
+python scripts/evaluate_multi_seed.py --model complex
+```
+
+Use `simple` or `transfer` to evaluate the other models. The detailed results are
+written to the corresponding `outputs/multi_run_median_<model>.json` file.
+
+To generate per-disease AUC charts from those results, run:
+
+```bash
+python scripts/plot_per_class_auc.py
+```
+
+This creates one PNG per model in `outputs/`. Add `--model simple`, `--model
+complex`, or `--model transfer` to create only one chart.
 
 The project uses the following evaluation metrics:
 
@@ -142,6 +161,20 @@ The project uses the following evaluation metrics:
 * **Subset accuracy:** Proportion of samples for which all labels are predicted correctly
 
 The default classification threshold is `0.5`.
+
+## Single-image Prediction
+
+Training saves the best validation checkpoint under `checkpoints/`. To predict
+one image using a saved checkpoint, run:
+
+```bash
+python predict.py \
+    --checkpoint checkpoints/transfer_seed202603.pth \
+    --image datasets/processed/test/images/0006e0a85696f6bb578e84fafa9a5607.png
+```
+
+The command prints the predicted labels and probabilities for all 15 classes.
+Pass a different `--checkpoint` or `--image` path to use another model or X-ray.
 
 ## Project Structure
 

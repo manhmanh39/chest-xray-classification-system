@@ -1,0 +1,25 @@
+{
+  "image": "datasets/processed/test/images/0006e0a85696f6bb578e84fafa9a5607.png",
+  "checkpoint": "checkpoints/transfer_seed202603.pth",
+  "threshold": 0.5,
+  "predicted_labels": [
+    "No finding"
+  ],
+  "probabilities": {
+    "Aortic enlargement": 0.0038205506280064583,
+    "Atelectasis": 0.013292304240167141,
+    "Calcification": 0.03091585822403431,
+    "Cardiomegaly": 0.0039006134029477835,
+    "Consolidation": 0.005419821012765169,
+    "ILD": 0.018586045131087303,
+    "Infiltration": 0.030598247423768044,
+    "Lung Opacity": 0.012158573605120182,
+    "Nodule/Mass": 0.030827153474092484,
+    "Other lesion": 0.016194680705666542,
+    "Pleural effusion": 0.0026041537057608366,
+    "Pleural thickening": 0.012835846282541752,
+    "Pneumothorax": 0.004534471780061722,
+    "Pulmonary fibrosis": 0.030255978927016258,
+    "No finding": 0.9891051650047302
+  }
+}
