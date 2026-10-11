@@ -25,10 +25,8 @@ Thumbs.db
 
 # Large weights and binary checkpoints
 *.pt
-*.pth
 *.ckpt
 *.h5
 *.pkl
 
 datasets/
-checkpoints/
