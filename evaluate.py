@@ -31,10 +31,10 @@ def calculate_metrics(labels, probabilities, threshold=config.threshold):
     negative_total = (1 - labels).sum()
 
     return {
-        "auc": macro_auc(labels, probabilities),
+        "roc_auc": macro_auc(labels, probabilities),
         "f1_macro": float(f1_score(labels, predictions, average="macro", zero_division=0)),
         "f1_micro": float(f1_score(labels, predictions, average="micro", zero_division=0)),
-        "sensitivity": float(true_positive / positive_total) if positive_total else 0.0,
+        "recall": float(true_positive / positive_total) if positive_total else 0.0,
         "specificity": float(true_negative / negative_total) if negative_total else 0.0,
         "label_accuracy": float((predictions == labels).mean()),
         "subset_accuracy": float((predictions == labels).all(axis=1).mean()),

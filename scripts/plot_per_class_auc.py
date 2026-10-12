@@ -34,8 +34,8 @@ def plot_model(model_name):
 
     per_class = results["per_class_summary"]
     class_names = list(per_class)
-    means = [per_class[name]["auc"]["mean"] for name in class_names]
-    standard_deviations = [per_class[name]["auc"]["std"] for name in class_names]
+    means = [per_class[name].get("roc_auc", per_class[name].get("auc"))["mean"] for name in class_names]
+    standard_deviations = [per_class[name].get("roc_auc", per_class[name].get("auc"))["std"] for name in class_names]
     positions = list(range(len(class_names)))
 
     figure, axis = plt.subplots(figsize=(10, 7))
@@ -50,8 +50,8 @@ def plot_model(model_name):
     axis.set_yticks(positions, class_names)
     axis.invert_yaxis()
     axis.set_xlim(0.5, 1.0)
-    axis.set_xlabel("Test AUC (mean +/- std across seeds)")
-    axis.set_title(f"{model_titles[model_name]}: per-disease test AUC")
+    axis.set_xlabel("Test ROC-AUC (mean +/- std across seeds)")
+    axis.set_title(f"{model_titles[model_name]}: per-disease test ROC-AUC")
     axis.grid(axis="x", linestyle=":", alpha=0.45)
     axis.set_axisbelow(True)
     figure.tight_layout()

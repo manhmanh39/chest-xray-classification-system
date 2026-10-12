@@ -22,6 +22,28 @@ def summarize(values):
     }
 
 
+def normalize_metric_key(key):
+    alias_map = {
+        "auc": "roc_auc",
+        "sensitivity": "recall",
+        "recall": "recall",
+        "specificity": "specificity",
+        "roc_auc": "roc_auc",
+        "f1_macro": "f1_macro",
+        "f1_micro": "f1_micro",
+        "label_accuracy": "label_accuracy",
+        "subset_accuracy": "subset_accuracy",
+    }
+    return alias_map.get(key, key)
+
+
+def normalize_run(run):
+    normalized = {}
+    for key, value in run.items():
+        normalized[normalize_metric_key(key)] = value
+    return normalized
+
+
 def evaluate_model(model_name, threshold):
     output_path = config.output_dir / f"multi_run_median_{model_name}.json"
     with open(output_path, encoding="utf-8") as file:
@@ -29,16 +51,22 @@ def evaluate_model(model_name, threshold):
 
     per_class_runs = []
     for run in results["runs"]:
-        checkpoint_path = config.checkpoint_dir / f"{model_name}_seed{run['seed']}.pth"
+        normalized_run = normalize_run(run)
+        checkpoint_path = config.checkpoint_dir / f"{model_name}_seed{normalized_run['seed']}.pth"
         probabilities, labels = predict_test_set(
             checkpoint_path, batch_size=config.batch_size
         )
         metrics = calculate_metrics(labels, probabilities, threshold)
         for name, value in metrics.items():
-            if not np.isclose(value, run[name], rtol=0, atol=1e-5):
+            saved_value = normalized_run.get(name)
+            if saved_value is None and name == "roc_auc":
+                saved_value = normalized_run.get("auc")
+            if saved_value is None and name == "recall":
+                saved_value = normalized_run.get("sensitivity")
+            if saved_value is not None and not np.isclose(value, saved_value, rtol=0, atol=1e-5):
                 raise ValueError(
                     f"{checkpoint_path.name}: {name}={value} does not match "
-                    f"the saved multi-seed result {run[name]}"
+                    f"the saved multi-seed result {saved_value}"
                 )
 
         labels = labels.astype(int)
@@ -56,13 +84,14 @@ def evaluate_model(model_name, threshold):
                 {
                     "class": class_name,
                     "support": positives,
-                    "auc": auc_by_class[class_name],
-                    "sensitivity": true_positive / positives if positives else 0.0,
+                    "roc_auc": auc_by_class[class_name],
+                    "recall": true_positive / positives if positives else 0.0,
                     "specificity": true_negative / negatives if negatives else 0.0,
                 }
             )
 
-        run["per_class"] = per_class
+        normalized_run["per_class"] = per_class
+        results["runs"][results["runs"].index(run)] = normalized_run
         per_class_runs.append(per_class)
 
     results["per_class_summary"] = {}
@@ -70,8 +99,8 @@ def evaluate_model(model_name, threshold):
         class_runs = [run[index] for run in per_class_runs]
         results["per_class_summary"][class_name] = {
             "support": class_runs[0]["support"],
-            "auc": summarize([run["auc"] for run in class_runs]),
-            "sensitivity": summarize([run["sensitivity"] for run in class_runs]),
+            "roc_auc": summarize([run["roc_auc"] for run in class_runs]),
+            "recall": summarize([run["recall"] for run in class_runs]),
             "specificity": summarize([run["specificity"] for run in class_runs]),
         }
 

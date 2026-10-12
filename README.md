@@ -132,7 +132,7 @@ python evaluate.py --checkpoint checkpoints/complex_seed202601.pth
 
 Replace the checkpoint path with the checkpoint you want to evaluate.
 
-To add per-disease AUC, sensitivity, and specificity mean and standard deviation
+To add per-disease ROC-AUC, recall, and specificity mean and standard deviation
 to the existing three-seed results without retraining, run:
 
 ```bash
@@ -153,12 +153,13 @@ complex`, or `--model transfer` to create only one chart.
 
 The project uses the following evaluation metrics:
 
-* **AUC:** Area Under the ROC Curve
-* **F1-score:** Macro and micro F1-score
-* **Sensitivity:** Proportion of positive cases correctly identified
-* **Specificity:** Proportion of negative cases correctly identified
-* **Label accuracy:** Accuracy calculated across individual labels
-* **Subset accuracy:** Proportion of samples for which all labels are predicted correctly
+* **ROC-AUC:** Area under the receiver operating characteristic curve
+* **Macro F1-score:** Mean F1-score across all disease classes
+* **Micro F1-score:** F1-score computed over all predictions and labels together
+* **Recall (Sensitivity / TPR):** Proportion of actual positive cases correctly identified
+* **Specificity (TNR):** Proportion of actual negative cases correctly identified
+* **Label accuracy:** Accuracy computed across individual labels
+* **Subset accuracy / Exact match accuracy:** Proportion of samples for which all labels are predicted correctly
 
 The default classification threshold is `0.5`.
 
