@@ -3,7 +3,7 @@ import json
 
 import numpy as np
 import torch
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, precision_score, recall_score
 from tqdm import tqdm
 
 import config
@@ -27,17 +27,29 @@ def calculate_metrics(labels, probabilities, threshold=config.threshold):
     predictions = (probabilities >= threshold).astype(int)
     true_positive = ((predictions == 1) & (labels == 1)).sum()
     true_negative = ((predictions == 0) & (labels == 0)).sum()
+    predicted_positive_total = predictions.sum()
     positive_total = labels.sum()
     negative_total = (1 - labels).sum()
+    specificity_by_class = []
+    for index in range(labels.shape[1]):
+        class_true_negative = ((predictions[:, index] == 0) & (labels[:, index] == 0)).sum()
+        class_negative_total = (1 - labels[:, index]).sum()
+        specificity_by_class.append(
+            class_true_negative / class_negative_total if class_negative_total else 0.0
+        )
 
     return {
         "roc_auc": macro_auc(labels, probabilities),
-        "f1_macro": float(f1_score(labels, predictions, average="macro", zero_division=0)),
+        "accuracy": float((predictions == labels).all(axis=1).mean()),
+        "precision": float(precision_score(labels, predictions, average="macro", zero_division=0)),
+        "recall": float(recall_score(labels, predictions, average="macro", zero_division=0)),
+        "f1_score": float(f1_score(labels, predictions, average="macro", zero_division=0)),
+        "precision_micro": float(true_positive / predicted_positive_total)
+        if predicted_positive_total else 0.0,
+        "recall_micro": float(true_positive / positive_total) if positive_total else 0.0,
         "f1_micro": float(f1_score(labels, predictions, average="micro", zero_division=0)),
-        "recall": float(true_positive / positive_total) if positive_total else 0.0,
-        "specificity": float(true_negative / negative_total) if negative_total else 0.0,
-        "label_accuracy": float((predictions == labels).mean()),
-        "subset_accuracy": float((predictions == labels).all(axis=1).mean()),
+        "specificity": float(np.mean(specificity_by_class)),
+        "specificity_micro": float(true_negative / negative_total) if negative_total else 0.0,
     }
 
 

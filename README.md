@@ -132,6 +132,18 @@ python evaluate.py --checkpoint checkpoints/complex_seed202601.pth
 
 Replace the checkpoint path with the checkpoint you want to evaluate.
 
+To plot training and validation loss by epoch for all three models, run:
+
+```bash
+python scripts/plot_training_loss.py
+```
+
+The combined chart is saved as `outputs/training_loss_by_epoch.png`. The script
+checks that all three saved histories contain complete, ordered epoch records
+and valid loss values before creating the image. DenseNet121's chart marks the
+backbone unfreeze boundary before epoch 4. These curves use the saved
+single-training-run histories, not an average across the three seeds.
+
 To add per-disease ROC-AUC, recall, and specificity mean and standard deviation
 to the existing three-seed results without retraining, run:
 
@@ -148,18 +160,32 @@ To generate per-disease AUC charts from those results, run:
 python scripts/plot_per_class_auc.py
 ```
 
-This creates one PNG per model in `outputs/`. Add `--model simple`, `--model
-complex`, or `--model transfer` to create only one chart.
+By default, this creates one side-by-side comparison image at
+`outputs/per_class_auc_comparison.png`, with one panel per model and standard
+deviation error bars. Add `--model simple`, `--model complex`, or
+`--model transfer` to create a single-model chart instead.
 
-The project uses the following evaluation metrics:
+To compare the three models by macro ROC-AUC, macro F1, and micro F1 with
+standard-deviation error bars across the three saved runs, run:
 
-* **ROC-AUC:** Area under the receiver operating characteristic curve
-* **Macro F1-score:** Mean F1-score across all disease classes
-* **Micro F1-score:** F1-score computed over all predictions and labels together
-* **Recall (Sensitivity / TPR):** Proportion of actual positive cases correctly identified
-* **Specificity (TNR):** Proportion of actual negative cases correctly identified
-* **Label accuracy:** Accuracy computed across individual labels
-* **Subset accuracy / Exact match accuracy:** Proportion of samples for which all labels are predicted correctly
+```bash
+python scripts/plot_model_metrics.py
+```
+
+The grouped bar chart is saved to `outputs/model_metrics_comparison.png`.
+
+The primary evaluation metrics follow the project template:
+
+* **Accuracy:** Exact-match accuracy; a sample is correct only when all 15 labels match.
+* **Precision, Recall, and F1-score:** Macro averages across the 15 labels, so rare diseases count as much as common ones.
+
+The evaluation also reports these complementary metrics:
+
+* **Micro Precision, Recall, and F1-score:** Aggregate true/false positives across labels to show overall performance; these can be dominated by common labels.
+* **ROC-AUC:** Macro, threshold-independent ranking quality; it is also used to select checkpoints during training.
+* **Specificity:** Macro true-negative rate, useful for measuring false-positive control in screening.
+
+Label-wise accuracy is omitted because the many negative labels can make it look high even when disease detection is weak. Exact-match accuracy is retained as the template's single Accuracy metric and is intentionally strict for a 15-label task.
 
 The default classification threshold is `0.5`.
 
